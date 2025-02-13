@@ -1,0 +1,12 @@
+Send Reply {
+  if ($$1) {
+    var %response $$decision(eg¿incorrigo syx $+ $pipe reply to message¿Enter response to this message:)
+  .raw @+draft/reply= $+ $$1 $+ ;+reply= $+ $$1 PRIVMSG $2 : $+ %response
+  printreplyline $2 $readini(%main.id-cache, $2, $1)
+  echo -tc Own $2 < $+ $me $+ > %response
+  window -c @reply
+  }
+}
+Cancel {
+  window -c @reply
+}
