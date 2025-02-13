@@ -1,6 +1,6 @@
 # Message Reply Script for mIRC
 ### This script adds the message replies feature to channel and query windows in mIRC  
-Protocol specification published by IRC v3 w.g. - [specification link](https://ircv3.net/specs/client-tags/reply)
+Protocol specification published by IRC v3 e.g. - [specification link](https://ircv3.net/specs/client-tags/reply)
 
 * Client message tag +draft/reply  
 Most IRC clients which support this feature use the "draft/" prefix, because currently the reply feature protocol is in the draft phase
@@ -32,10 +32,10 @@ Automatically created functional data structure, which is created in _incorrigo-
 * Timeliness of functional session data structure is designed to support long sessions  
 If your IRC session continues for a particularly long time, the reply system's functional data structure is designed to maintain consistency. Once the data for a conversation reaches a certain size, the oldest info you are least likely to use will start being trimmed and replaced with new as the conversation goes along; keeping a chronological snapshot consisting of only what is realistically going to be used and stays in the context of a cache instead of turning into a redundant log file  
 
-* Data is cached on file system
+* Data is cached on file system  
 Large data cache can still result from lots of conversations in one session. The functional data structure is maintained on the file system instead of system memory ... so reply support persists even when your buffer is cleared, and data is stored / retrieved from a file on disk rather than device memory
 
-* You can send and receive message replies
+* You can send and receive message replies  
 This feature isn't just so that you can send replies. You can receive replies as well from other users - using _any_ IRC client - message replies will also be displayed if a reply is present in chat history playback
 
 If you like this script which has been adapted into a stand-alone version so that it can be used by other people in their own mIRC scripts, you might be interested in _Incorrigo Syx Script_ ... which is the main script this comes from. It is a fully featured mIRC script that's **bespoke** to my IRC network _irc.incorrigo.io_ ... here's the permanent link to the repository: [https://incorrigo.io/script](https://incorrigo.io/script)  
