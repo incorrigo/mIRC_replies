@@ -71,6 +71,8 @@ on *:PARSELINE:*:*msgid=*PRIVMSG*: {
   }
 }
 
+;; it is recommended to make this command [in query and channel windows] the double-click
+;; action or bound to a particular keyboard shortcut [/r #channelname ... /r nickname]
 alias r {
   ;; a menu of messages from $1 section of cache. right-click a message to send reply
   ;; if the menu is empty, right-click anyway and still click cancel to quickly dismiss
@@ -82,6 +84,13 @@ alias r {
   while (%countdown >= 1) {
     ;; counting down gives you most recent message first
     dec %countdown
+  }
+}
+
+on *:ACTIVE:@reply: noop when this becomes the active window
+on *:ACTIVE:*: {
+  if ($active != @reply) {
+    .window -c @reply
   }
 }
 
