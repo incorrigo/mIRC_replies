@@ -1,58 +1,30 @@
 ;;; INCORRIGO SYX DIGITAL COMMUNICATION SYSTEMS
-;;; ircs://irc.incorrigo.io:+6697/
-;;; - text based virtual world -
-;;
-;; project ... a classic mIRC script. just like the good old days
-;; github: https://incorrigo.io/script
+;;; ircs://irc.incorrigo.io:+6697/westid
 
-;; +draft/reply and +reply [standalone version]
-;; popup file incorrigo-syx\replymenu.syx
-
-;;;; uncomment these commands for standalone modification
-
-alias ronnik {
-  ;; syntax: /ronnik varname variable content goes here
-  ;; ignore multiple connection problems caused with variable names
-  set -e % [ $+ [ $server ] $+ . $+ [ $me ] $+ . $+ [ $$1 ] ] [ [ $2- ] ]
-}
-
-alias xronnik {
-  ;; NB: all variables set by ronnik are auto-deletec on mIRC exit anyway
-  unset % [ $+ [ $server ] $+ . $+ [ $me ] $+ . $+ [ $1 ] ]
-}
-
-alias ironnik {
-  ;; syntax: $ironnik(varname)
-  ;; ignores multiple connection problems with variable names
-  return % [ $+ [ $server ] $+ . $+ [ $me ] $+ . $+ [ $1 ] ]
-}
-;;;;
+;; +draft/reply and +reply
 
 on *:START: {
   titlebar :: Incorrigo Syx
-  set -e %main.id-cache incorrigo-syx\session-cache.syx
+  set -e %main.id-cache incorrigo-syx\chicken-oriental\session-cache.syx
   if (!$exists(%main.id-cache)) {
     cachewr fileinit file initialised
   }
 }
 
 on *:CONNECT: {
-  ;; this is required for your own messages
   cap req echo-message
 }
 
 on *:EXIT: {
-  ;; what happens in this session, stays in this session. always has
-  remove incorrigo-syx\session-cache.syx
+  remove incorrigo-syx\chicken-oriental\session-cache.syx
 }
 
 alias cachewr {
-  writeini incorrigo-syx\session-cache.syx $$1-
+  writeini incorrigo-syx\chicken-oriental\session-cache.syx $$1-
 }
 
 alias -l lopoff {
-  ;; removes the oldest message in cache for given nick / channel's section in the file
-  remini incorrigo-syx\session-cache.syx $1 $ini(incorrigo-syx\session-cache.syx, $1, 1)
+  remini incorrigo-syx\chicken-oriental\session-cache.syx $1 $ini(incorrigo-syx\chicken-oriental\session-cache.syx, $1, 1)
 }
 
 alias -l replyline {
@@ -64,25 +36,20 @@ alias printreplyline {
 }
 
 on *:PARSELINE:*:*msgid=*PRIVMSG*: {
-  ;; all incoming PRIVMSG with a 'msgid' tag including echo messages
   if ($parsetype == in) {
     ronnik echo-tags $parseline
     self-msgid $ironnik(echo-tags)
   }
 }
 
-;; it is recommended to make this command [in query and channel windows] the double-click
-;; action or bound to a particular keyboard shortcut [/r #channelname ... /r nickname]
 alias r {
-  ;; a menu of messages from $1 section of cache. right-click a message to send reply
-  ;; if the menu is empty, right-click anyway and still click cancel to quickly dismiss
   .window -c @reply
   var %reply.channel $$1
-  window -al +f @reply 100 100 1075 300 incorrigo-syx\replymenu.syx
+  window -al +f @reply 100 100 1075 300 incorrigo-syx\chicken-oriental\replymenu.syx
   var %reply.lines = $ini(%main.id-cache, $1, 0)
   var %countdown = %reply.lines
   while (%countdown >= 1) {
-    ;; counting down gives you most recent message first
+    aline @reply $ini(%main.id-cache, %reply.channel, %countdown) %reply.channel $readini(%main.id-cache, %reply.channel, $ini(%main.id-cache, %reply.channel, %countdown))
     dec %countdown
   }
 }
@@ -99,12 +66,9 @@ alias send-reply-line {
 }
 
 alias -l self-msgid {
-  ;; use mIRC text tokening functions to extract own msgid
   ronnik echo-message $right($2, -1)
   ronnik echo-nick $gettok($ironnik(echo-message), 1, 33)
   if ($ironnik(echo-nick) == $me) {
-    ;; echo-message is identical to everything about your incoming messages
-    ;; the only thing that stands out is that they are coming from $me
     ronnik tagss $1
     ronnik msgid $right($wildtok($ironnik(tagss), msgid=*, 1, 59), -6)
     cachewr $4 $ironnik(msgid) $me $right($5-, -1)
@@ -115,9 +79,7 @@ alias -l self-msgid {
 }
 
 on ^*:TEXT:*:#: {
-  ;; checks all messages sent to channel that you are on
   if ($msgtags(msgid)) {
-    ;; replies themselves are still given a message ID of their own
     cachewr # $msgtags(msgid).key $nick $1-
     if ($ini(%main.id-cache, #, 0) >= 101) {
       lopoff #
@@ -128,13 +90,11 @@ on ^*:TEXT:*:#: {
     if ($readini(%main.id-cache, #, $msgtags(+draft/reply).key)) {
       var %readline $readini(%main.id-cache, #, $msgtags(+draft/reply).key)
       replyline # %readline
-      ;; we have our id. ignore everything else
       goto chicot
     }
   }
 
   if ($msgtags(+reply)) {
-    ;; if both tags are used properly value would be the same anyway
     if ($readini(%main.id-cache, #, $msgtags(+reply).key)) {
       var %readline $readini(%main.id-cache, #, $msgtags(+reply).key)
       replyline # %readline
@@ -144,15 +104,7 @@ on ^*:TEXT:*:#: {
 }
 
 on ^*:TEXT:*:?: {
-  ;; private conversations [query] use PRIVMSG. section of the cache file
-  ;; is $nick ... NOTICE messages are not cached because they are one-off
-  ;; replies and services would fill the cache full of unusable crap
-
   if ($msgtags(msgid)) {
-    ;; the cache format is the same, only the section of the file is a
-    ;; nickname instead of a channel
-    ;; the query window stops replies to private messages from ending up
-    ;; in a status / channel / someone else's query erroneous like
     $iif($query($nick),noop,query -n $nick)
     cachewr $nick $msgtags(msgid).key $nick $1-
     if ($ini(%main.id-cache, $nick, 0) >= 101) {
@@ -179,16 +131,9 @@ on ^*:TEXT:*:?: {
 }
 
 on ^*:ACTION:*:#: {
-  ;; in the reply list will look like: ACTION goes to the toilet
-  ;; but won't appear like that in the reply line output
-
-
   if ($msgtags(msgid)) {
-    ;; these messages are PRIVMSG just like on TEXT:#:
     cachewr # $msgtags(msgid).key $nick ACTION $1- $+ 
     if ($ini(%main.id-cache, #, 0) >= 101) {
-      ;; at 101 messages for $nick section, new message we just cached
-      ;; replaces the oldest message by deleting it with /lopoff
       lopoff #
     }
   }
@@ -213,11 +158,7 @@ on ^*:ACTION:*:#: {
 }
 
 on ^*:ACTION:*:?: {
-  ;; only open query if there isn't one already. open minimised so doesn't
-  ;; annoyingly pop up over something else. used ^* for event because it will
-  ;; create the window before the messages 
   $iif($query($nick),noop,query -n $nick)
-
   if ($msgtags(msgid)) {
     cachewr $nick $msgtags(msgid).key $nick ACTION $1- $+ 
     if ($ini(%main.id-cache, $nick, 0) >= 101) {
@@ -242,4 +183,3 @@ on ^*:ACTION:*:?: {
 
   :keating
 }
-
