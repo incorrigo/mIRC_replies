@@ -3,6 +3,18 @@
 
 ;; +draft/reply and +reply
 
+alias ronnik {
+  set -e % [ $+ [ $server ] $+ . $+ [ $me ] $+ . $+ [ $$1 ] ] [ [ $2- ] ]
+}
+
+alias xronnik {
+  unset % [ $+ [ $server ] $+ . $+ [ $me ] $+ . $+ [ $1 ] ]
+}
+
+alias ironnik {
+  return % [ $+ [ $server ] $+ . $+ [ $me ] $+ . $+ [ $1 ] ]
+}
+
 on *:START: {
   titlebar :: Incorrigo Syx
   set -e %main.id-cache incorrigo-syx\chicken-oriental\session-cache.syx
@@ -16,15 +28,15 @@ on *:CONNECT: {
 }
 
 on *:EXIT: {
-  remove incorrigo-syx\chicken-oriental\session-cache.syx
+  remove incorrigo-syx\session-cache.syx
 }
 
 alias cachewr {
-  writeini incorrigo-syx\chicken-oriental\session-cache.syx $$1-
+  writeini incorrigo-syx\session-cache.syx $$1-
 }
 
 alias -l lopoff {
-  remini incorrigo-syx\chicken-oriental\session-cache.syx $1 $ini(incorrigo-syx\chicken-oriental\session-cache.syx, $1, 1)
+  remini incorrigo-syx\session-cache.syx $1 $ini(incorrigo-syx\chicken-oriental\session-cache.syx, $1, 1)
 }
 
 alias -l replyline {
@@ -45,7 +57,7 @@ on *:PARSELINE:*:*msgid=*PRIVMSG*: {
 alias r {
   .window -c @reply
   var %reply.channel $$1
-  window -al +f @reply 100 100 1075 300 incorrigo-syx\chicken-oriental\replymenu.syx
+  window -al +f @reply 100 100 1075 300 incorrigo-syx\replymenu.syx
   var %reply.lines = $ini(%main.id-cache, $1, 0)
   var %countdown = %reply.lines
   while (%countdown >= 1) {
